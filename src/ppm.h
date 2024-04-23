@@ -12,11 +12,9 @@ public:
     int16_t get(int channel);
 
 private:
-    void IRAM_ATTR handle();
-    static void IRAM_ATTR handle_isr();
-
+    void handle();
+    static void handle_isr(void* arg);
     static const size_t CHANNELS = 16;
-    static PPM* _instance;
 
     int _pin = -1;
     volatile size_t _channel = 0;

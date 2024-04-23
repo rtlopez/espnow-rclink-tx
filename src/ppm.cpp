@@ -1,9 +1,5 @@
 #include "ppm.h"
 
-#include <functional>
-
-PPM* PPM::_instance = nullptr;
-
 PPM::PPM()
 {
   for(size_t i = 0; i < CHANNELS; i++)
@@ -17,7 +13,7 @@ void PPM::end()
   if(_pin != -1)
   {
     detachInterrupt(_pin);
-    _instance = nullptr;
+    _pin = -1;
   }
 }
 
@@ -29,10 +25,9 @@ int PPM::begin(int pin, int mode)
   _pin = pin;
   _channel = 0;
   _last_tick = micros();
-  _instance = this;
 
   pinMode(_pin, INPUT);
-  attachInterrupt(_pin, PPM::handle_isr, mode);
+  attachInterruptArg(_pin, &PPM::handle_isr, this, mode);
 
   return 1;
 }
@@ -52,12 +47,12 @@ int16_t PPM::get(int channel)
   return _channels[channel];
 }
 
-void PPM::handle_isr()
+void IRAM_ATTR PPM::handle_isr(void* arg)
 {
-  if(_instance) _instance->handle();
+  if(arg) reinterpret_cast<PPM*>(arg)->handle();
 }
 
-void PPM::handle()
+void IRAM_ATTR PPM::handle()
 {
   uint32_t now = micros();
   uint32_t width = now - _last_tick;
