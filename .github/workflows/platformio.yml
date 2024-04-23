@@ -24,8 +24,8 @@ jobs:
 
       - name: Make Version
         run: |
-          echo "build_file_devel=espfc_${{ env.build_sha }}_${{ matrix.target }}" >> $GITHUB_ENV
-          echo "build_file_release=espfc_${{ env.build_tag }}_${{ matrix.target }}" >> $GITHUB_ENV
+          echo "build_file_devel=espnow_rclink_${{ env.build_sha }}_${{ matrix.target }}" >> $GITHUB_ENV
+          echo "build_file_release=espnow_rclink_${{ env.build_tag }}_${{ matrix.target }}" >> $GITHUB_ENV
 
       - name: Print Version
         run: |
@@ -65,14 +65,14 @@ jobs:
         run: |
           platformio run -e ${{ matrix.target }}
         env:
-          PLATFORMIO_BUILD_FLAGS: -DESPFC_REVISION=${{ env.build_sha }}
+          PLATFORMIO_BUILD_FLAGS: -DESPLINK_REVISION=${{ env.build_sha }}
 
       - name: Build Release Target
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
           platformio run -e ${{ matrix.target }}
         env:
-          PLATFORMIO_BUILD_FLAGS: -DESPFC_REVISION=${{ env.build_sha }} -DESPFC_VERSION=${{ env.build_tag }}
+          PLATFORMIO_BUILD_FLAGS: -DESPLINK_REVISION=${{ env.build_sha }} -DESPLINK_VERSION=${{ env.build_tag }}
 
       - name: Create Development Artifact
         uses: actions/upload-artifact@v4
