@@ -42,7 +42,7 @@ bool PPM::available()
   return false;
 }
 
-int16_t PPM::get(int channel)
+int16_t PPM::get(int channel) const
 {
   return _channels[channel];
 }

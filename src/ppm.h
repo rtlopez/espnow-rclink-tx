@@ -9,7 +9,7 @@ public:
     int begin(int pin, int mode = RISING);
     void end();
     bool available();
-    int16_t get(int channel);
+    int16_t get(int channel) const;
 
 private:
     void handle();
