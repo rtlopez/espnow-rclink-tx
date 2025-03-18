@@ -8,7 +8,8 @@ class Tx
 public:
   Tx()
   {
-    std::fill_n(_values, CHANNEL_NUM, 0);
+    std::fill_n(_values, CHANNEL_NUM, 1500);
+    _values[2] = 1000;
   }
 
   void setChannel(size_t channel, int value)
@@ -21,9 +22,11 @@ public:
     return _values[channel];
   }
 
-  void setAvailable()
+  void setAvailable(uint32_t timestampUs)
   {
     _available = true;
+    _deltaTimeUs = timestampUs - _lastUpdateTimeUs;
+    _lastUpdateTimeUs = timestampUs;
   }
 
   bool getAvailable()
@@ -38,8 +41,15 @@ public:
     return CHANNEL_NUM;
   }
 
+  uint32_t getDeltaTime() const
+  {
+    return _deltaTimeUs;
+  }
+
 private:
   static constexpr size_t CHANNEL_NUM = 16;
   int _values[CHANNEL_NUM];
   bool _available = false;
+  uint32_t _lastUpdateTimeUs = 0;
+  uint32_t _deltaTimeUs = 0;
 };
