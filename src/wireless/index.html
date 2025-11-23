@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>ESPNOW-RCLINK-TX</title>
+  <style>
+    table .ch {
+      width: 50px;
+      text-align: left;
+    }
+
+    table .meter {
+      width: 300px;
+    }
+
+    table .value {
+      width: 50px;
+      text-align: right;
+    }
+
+    table meter {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>ESPNOW-RCLINK-TX</h2>
+  <button id="calibrationStart">Calibrate</button>
+  <hr />
+  <table>
+    <tbody>
+      <tr>
+        <td class="ch">CH1</td>
+        <td class="meter"><meter id="ch0" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch0_val" class="value"></td>
+      </tr>
+      <tr>
+        <td class="ch">CH2</td>
+        <td class="meter"><meter id="ch1" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch1_val" class="value"></td>
+      </tr>
+      <tr>
+        <td class="ch">CH3</td>
+        <td class="meter"><meter id="ch2" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch2_val" class="value"></td>
+      </tr>
+      <tr>
+        <td class="ch">CH4</td>
+        <td class="meter"><meter id="ch3" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch3_val" class="value"></td>
+      </tr>
+      <tr>
+        <td class="ch">CH5</td>
+        <td class="meter"><meter id="ch4" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch4_val" class="value"></td>
+      </tr>
+      <tr>
+        <td class="ch">CH6</td>
+        <td class="meter"><meter id="ch5" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch5_val" class="value"></td>
+      </tr>
+      <tr>
+        <td class="ch">CH7</td>
+        <td class="meter"><meter id="ch6" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch6_val" class="value"></td>
+      </tr>
+      <tr>
+        <td class="ch">CH8</td>
+        <td class="meter"><meter id="ch7" min="800" max="2200" value="1500"></meter></td>
+        <td id="ch7_val" class="value"></td>
+      </tr>
+    </tbody>
+  </table>
+  <table>
+    <tbody>
+      <tr>
+        <td id="cal0_l"></td>
+        <td id="cal0_m"></td>
+        <td id="cal0_h"></td>
+      </tr>
+      <tr>
+        <td id="cal1_l"></td>
+        <td id="cal1_m"></td>
+        <td id="cal1_h"></td>
+      </tr>
+      <tr>
+        <td id="cal2_l"></td>
+        <td id="cal2_m"></td>
+        <td id="cal2_h"></td>
+      </tr>
+      <tr>
+        <td id="cal3_l"></td>
+        <td id="cal3_m"></td>
+        <td id="cal3_h"></td>
+      </tr>
+    </tbody>
+  </table>
+  <hr />
+  <pre id="data"></pre>
+  <script>
+    const getEl = (id) => {
+      return document.getElementById(id)
+    }
+    const apiCall = async (endpoint, data) => {
+      try {
+        const res = await fetch(endpoint, { method: 'POST' })
+        if (!res.ok) throw res
+        const text = await res.text()
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    const updateMeters = (data) => {
+      data.channels.forEach((c, i) => {
+        getEl('ch' + i).value = c
+        getEl('ch' + i + '_val').innerText = '' + c
+      })
+    }
+    const updateCalibration = (data) => {
+      data.calibration.forEach((c, i) => {
+        const [l, m, h] = c
+        getEl('cal' + i + '_l').innerText = '' + l
+        getEl('cal' + i + '_m').innerText = '' + m
+        getEl('cal' + i + '_h').innerText = '' + h
+      })
+      getEl("calibrationStart").setAttribute('disabled', data.active)
+    }
+    const events = []
+    const eventSource = new EventSource('/events')
+    eventSource.onmessage = function (e) {
+      try {
+        const data = JSON.parse(e.data)
+        if (data['channels']) {
+          updateMeters(data)
+        }
+        if (data['calibration']) {
+          updateCalibration(data)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+      events.push(e.data)
+      if (events.length > 20) events.shift()
+      getEl("data").innerText = events.join('\n')
+    }
+    window.onload = () => {
+      getEl("calibrationStart").onclick = async () => {
+        const res = apiCall('/analog/calibrate/start')
+      }
+    }
+  </script>
+</body>
+
+</html>

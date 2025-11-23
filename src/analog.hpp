@@ -1,68 +1,36 @@
 #pragma once
-#include <cstdint>
-#include <cstddef>
 #include <Arduino.h>
+#include <cstddef>
+#include <cstdint>
+#include "tx.hpp"
 
-class Analog
-{
+class Analog {
 public:
-  enum PinMode { MODE_OFF, MODE_ANALOG, MODE_DIGITAL };
+  enum PinMode { PIN_OFF, PIN_ANALOG, PIN_DIGITAL };
 
-  Analog() {};
+  Analog(Tx &tx);
 
-  void attach(size_t channel, PinMode mode, int8_t pin)
-  {
-    _input[channel].mode = mode;
-    _input[channel].pin = pin;
-    _input[channel].value = 0;
-    if(pin == -1) return;
-    switch(mode)
-    {
-      case MODE_DIGITAL:
-        pinMode(pin, INPUT_PULLUP);
-        break;
-
-      case MODE_ANALOG:
-        pinMode(pin, ANALOG);
-        break;
-
-      case MODE_OFF:
-      default:
-        break;
-    }
-  }
-
-  void update()
-  {
-    for(auto& in: _input)
-    {
-      if(in.pin == -1) continue;
-      switch(in.mode)
-      {
-        case MODE_DIGITAL:
-          in.value = digitalRead(in.pin) ? 0 : 4096;
-          break;
-
-        case MODE_ANALOG:
-          in.value = analogRead(in.pin);
-          break;
-
-        case MODE_OFF:
-        default:
-          break;
-      }
-    }
-  }
-
-  int get(size_t channel) const
-  {
-    return map(_input[channel].value, 0, 4095, 1000, 2000);
-  }
+  void begin();
+  void attach(size_t channel, PinMode mode, int8_t pin);
+  void update();
+  int get(size_t channel) const;
 
 private:
-  struct {
-    PinMode mode = MODE_OFF;
+  void _calibrate();
+
+  int _scale(int x, int in_min, int in_mid, int in_max, int out_min,
+             int out_mid, int out_max) const;
+
+  int _scale(int x, int in_min, int in_max, int out_min, int out_max) const;
+
+  struct ChannelData {
+    PinMode mode = PIN_OFF;
     int pin = -1;
     int value = 0;
+    float center = 2047;
+    int centerMin = 0;
+    int centerMax = 4095;
   } _input[16];
+
+  Tx &_tx;
 };
