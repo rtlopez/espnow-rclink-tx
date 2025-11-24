@@ -1,8 +1,8 @@
 #pragma once
-#include <Arduino.h>
+
+#include "tx.hpp"
 #include <cstddef>
 #include <cstdint>
-#include "tx.hpp"
 
 class Analog {
 public:

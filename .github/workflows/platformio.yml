@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        target: ['esp32_tx_ppm', 'esp32s2_rx', 'esp32s2_tx_ppm', 'esp32s2_tx_analog', 'esp32c3_tx_ppm', 'esp32c3_tx_analog', 'esp8266']
+        target: ['esp32', 'esp32s2', 'esp32c3']
     steps:
       - uses: actions/checkout@v4
       - name: Extract Version

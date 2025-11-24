@@ -2,16 +2,15 @@
 
 #include "tx.hpp"
 #include <Arduino.h>
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <ESPmDNS.h>
 #include <functional>
+#include <AsyncTCP.h>
+#include <ESPmDNS.h>
+#include <WiFi.h>
+#include <ESPAsyncWebServer.h>
 
-class Wireless
-{
+class Wireless {
 public:
-  Wireless(Tx& tx, const char *ssid = "espnow-rclink-tx");
+  Wireless(Tx &tx, const char *ssid = "espnow-rclink-tx");
   int begin();
 
   int update();
@@ -23,7 +22,7 @@ private:
   int _updateChannels();
   int _updateCalibration();
 
-  Tx& _tx;
+  Tx &_tx;
   const char *_ssid;
   int _counter;
   AsyncWebServer _server;
