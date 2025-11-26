@@ -8,6 +8,7 @@ class EspNowLink {
 public:
   EspNowLink(Tx &tx);
   int begin();
+  void end();
   int update();
 
 private:

@@ -4,10 +4,12 @@
 Tx::Tx() {
   std::fill_n(_values, CHANNEL_NUM, 1500);
   _values[2] = 1000;
-  EEPROM.begin(256);
 }
 
-int Tx::begin() { return load(); }
+int Tx::begin() {
+  EEPROM.begin(256);
+  return load();
+}
 
 void Tx::setChannel(size_t channel, int value) { _values[channel] = value; }
 
@@ -93,6 +95,7 @@ void Tx::save() {
   addr += sizeof(_calibration);
   EEPROM.put(addr, _config); // payload
   EEPROM.commit();
+  dispatch(EV_SAVE);
 }
 
 int Tx::load() {

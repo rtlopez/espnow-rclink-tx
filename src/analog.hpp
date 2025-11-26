@@ -10,9 +10,10 @@ public:
 
   Analog(Tx &tx);
 
-  void begin();
+  int begin();
+  void end();
   void attach(size_t channel, PinMode mode, int8_t pin);
-  void update();
+  int update();
   int get(size_t channel) const;
 
 private:

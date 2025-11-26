@@ -8,8 +8,8 @@ public:
   Monitor(Tx &tx) : _tx(tx) {}
 
   int begin() {
+    Serial.begin(115200);
     if (_tx.getConfig().debug) {
-      Serial.begin(115200);
       _tx.subscribe(EV_CHANNEL_UPDATE, [this]() {
         if (_lastRcv + 1000000 > micros()) {
           _lastRcv = micros();
@@ -33,6 +33,10 @@ public:
                     [this]() { Serial.println("failsafe exit"); });
     }
     return 0;
+  }
+
+  void end() {
+    // TODO: _tx.unsubsdcribe()
   }
 
 private:

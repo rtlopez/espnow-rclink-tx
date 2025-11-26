@@ -4,7 +4,7 @@
 
 Analog::Analog(Tx &tx) : _tx(tx) {}
 
-void Analog::begin() {
+int Analog::begin() {
   analogSetAttenuation(ADC_11db);
   analogReadResolution(12);
   TxConfig &c = _tx.getConfig();
@@ -16,6 +16,15 @@ void Analog::begin() {
   attach(5, Analog::PIN_DIGITAL, c.buttonPins[1]);
   attach(6, Analog::PIN_DIGITAL, c.buttonPins[2]);
   attach(7, Analog::PIN_DIGITAL, c.buttonPins[3]);
+  return 1;
+}
+
+void Analog::end() {
+  for(auto i: _input) {
+    if(i.pin != -1) {
+      pinMode(i.pin, INPUT);
+    }
+  }
 }
 
 void Analog::attach(size_t channel, PinMode mode, int8_t pin) {
@@ -37,7 +46,7 @@ void Analog::attach(size_t channel, PinMode mode, int8_t pin) {
   }
 }
 
-void Analog::update() {
+int Analog::update() {
   static uint32_t analogNext = 0;
   uint32_t now = micros();
   if (now > analogNext) {
@@ -62,7 +71,9 @@ void Analog::update() {
     }
     _tx.update(*this);
     _tx.setAvailable(now);
+    return 1;
   }
+  return 0;
 }
 
 int Analog::get(size_t channel) const {

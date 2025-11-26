@@ -6,6 +6,8 @@ Sim::Sim(Tx &tx) : _tx(tx) { std::fill_n(_val, 16, 0); }
 
 void Sim::begin() { _tm = millis() % CYCLE_TIME; }
 
+void Sim::end() {}
+
 int Sim::get(size_t channel) const { return 1500 + _val[channel]; }
 
 int Sim::update() {

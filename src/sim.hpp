@@ -9,6 +9,7 @@ public:
   Sim(Tx &tx);
 
   void begin();
+  void end();
   int get(size_t channel) const;
   int update();
 

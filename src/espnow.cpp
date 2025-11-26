@@ -20,6 +20,12 @@ int EspNowLink::begin() {
   return 0;
 }
 
+void EspNowLink::end() {
+  // TODO: _tx.unsubscribe()
+  //_txEspNow.end();
+  //_rxEspNow.end();
+}
+
 int EspNowLink::update() {
   uint32_t now = micros();
   TxConfig &c = _tx.getConfig();

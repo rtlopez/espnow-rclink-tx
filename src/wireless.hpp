@@ -19,6 +19,7 @@ public:
   void end();
 
 private:
+  int _updateConfig();
   int _updateChannels();
   int _updateCalibration();
 

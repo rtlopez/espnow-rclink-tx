@@ -12,14 +12,14 @@ struct TxCalibrationData {
 };
 
 enum RxTxMode : uint8_t {
-  MODE_NONE = 0,
+  MODE_NONE,
   MODE_ESPNOW,
-  MODE_SIM,
   MODE_ANALOG,
   MODE_PPM,
   MODE_SBUS,
   MODE_IBUS,
   MODE_CRSF,
+  MODE_SIM,
 };
 
 struct TxConfig {
@@ -27,8 +27,8 @@ struct TxConfig {
   RxTxMode txType = MODE_NONE;
   int8_t rxPin = -1;
   int8_t txPin = -1;
-  int8_t analogPins[4];
-  int8_t buttonPins[4];
+  int8_t analogPins[4] = {-1, -1, -1, -1};
+  int8_t buttonPins[4] = {-1, -1, -1, -1};
   int8_t gamepad = 0;
   int8_t debug = 0;
 };

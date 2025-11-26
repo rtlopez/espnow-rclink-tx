@@ -22,12 +22,79 @@
     table meter {
       width: 100%;
     }
+
+    form {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .4em .8em;
+      max-width: 300px;
+    }
+
+    label {
+      text-align: right;
+    }
   </style>
 </head>
 
 <body>
   <h2>ESPNOW-RCLINK-TX</h2>
   <button id="calibrationStart">Calibrate</button>
+  <hr />
+  <form id="configForm">
+    <label for="rxType">Receiving:</label>
+    <select id="rxType" name="rxType">
+      <option value="0">Off</option>
+      <option value="1">EspNow</option>
+      <option value="2">Analog</option>
+      <option value="3">PPM</option>
+      <!-- <option value="4">SBUS</option>
+      <option value="5">IBUS</option>
+      <option value="6">CRSF</option> -->
+      <option value="7">SIM</option>
+    </select>
+
+    <label for="txType">Transmitting:</label>
+    <select id="txType" name="txType">
+      <option value="0">Off</option>
+      <option value="1">EspNow</option>
+      <!-- <option value="2">PWM</option>
+      <option value="3">PPM</option>
+      <option value="4">SBUS</option>
+      <option value="5">IBUS</option>
+      <option value="6">CRSF</option>
+      <option value="7">SIM</option> -->
+    </select>
+
+    <label for="rxPin">RX Pin:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="rxPin" name="rxPin" />
+    <label for="txPin">TX Pin:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="txPin" name="txPin" />
+
+    <label for="adc0">Roll:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="adc0" name="adc0" />
+    <label for="adc1">Pitch:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="adc1" name="adc1" />
+    <label for="adc2">Throttle:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="adc2" name="adc2" />
+    <label for="adc3">Yaw:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="adc3" name="adc3" />
+
+    <label for="btn0">Button 1:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="btn0" name="btn0" />
+    <label for="btn1">Button 2:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="btn1" name="btn1" />
+    <label for="btn2">Button 3:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="btn2" name="btn2" />
+    <label for="btn3">Button 4:</label>
+    <input type="number" min="-1" max="48" step="1" value="-1" id="btn3" name="btn3" />
+
+    <label for="gamepad">Gamepad:</label>
+    <input type="checkbox" id="gamepad" name="gamepad" />
+    <label for="debug">Serial debug:</label>
+    <input type="checkbox" id="debug" name="debug" />
+
+    <button id="save" type="submit">Save</button>
+  </form>
   <hr />
   <table>
     <tbody>
@@ -43,7 +110,7 @@
       </tr>
       <tr>
         <td class="ch">CH3</td>
-        <td class="meter"><meter id="ch2" min="800" max="2200" value="1500"></meter></td>
+        <td class="meter"><meter id="ch2" min="800" max="2200" value="1000"></meter></td>
         <td id="ch2_val" class="value"></td>
       </tr>
       <tr>
@@ -100,56 +167,111 @@
   <hr />
   <pre id="data"></pre>
   <script>
-    const getEl = (id) => {
-      return document.getElementById(id)
-    }
-    const apiCall = async (endpoint, data) => {
-      try {
-        const res = await fetch(endpoint, { method: 'POST' })
-        if (!res.ok) throw res
-        const text = await res.text()
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    const updateMeters = (data) => {
-      data.channels.forEach((c, i) => {
-        getEl('ch' + i).value = c
-        getEl('ch' + i + '_val').innerText = '' + c
-      })
-    }
-    const updateCalibration = (data) => {
-      data.calibration.forEach((c, i) => {
-        const [l, m, h] = c
-        getEl('cal' + i + '_l').innerText = '' + l
-        getEl('cal' + i + '_m').innerText = '' + m
-        getEl('cal' + i + '_h').innerText = '' + h
-      })
-      getEl("calibrationStart").setAttribute('disabled', data.active)
-    }
-    const events = []
-    const eventSource = new EventSource('/events')
-    eventSource.onmessage = function (e) {
-      try {
-        const data = JSON.parse(e.data)
-        if (data['channels']) {
-          updateMeters(data)
+    (function () {
+      "use strict"
+      // api
+      const getEl = (id) => document.getElementById(id)
+      const apiCall = async (endpoint, data) => {
+        try {
+          const res = await fetch(endpoint, { method: 'POST' })
+          if (!res.ok) throw res
+          const text = await res.text()
+        } catch (e) {
+          console.error(e)
         }
-        if (data['calibration']) {
-          updateCalibration(data)
-        }
-      } catch (e) {
-        console.error(e)
       }
-      events.push(e.data)
-      if (events.length > 20) events.shift()
-      getEl("data").innerText = events.join('\n')
-    }
-    window.onload = () => {
-      getEl("calibrationStart").onclick = async () => {
+      // views
+      const updateChannels = (data) => {
+        data.channels.forEach((c, i) => {
+          getEl('ch' + i).value = c
+          getEl('ch' + i + '_val').innerText = '' + c
+        })
+      }
+      const updateCalibration = (data) => {
+        data.calibration.forEach((c, i) => {
+          const [l, m, h] = c
+          getEl('cal' + i + '_l').innerText = '' + l
+          getEl('cal' + i + '_m').innerText = '' + m
+          getEl('cal' + i + '_h').innerText = '' + h
+        })
+        getEl("calibrationStart").setAttribute('disabled', data.active)
+      }
+      const updateConfig = (data) => {
+        const { config } = data
+        const fields = {
+          rxType: { type: 'number' },
+          txType: { type: 'number' },
+          rxPin: { type: 'number' },
+          txPin: { type: 'number' },
+          adc0: { type: 'number' },
+          adc1: { type: 'number' },
+          adc2: { type: 'number' },
+          adc3: { type: 'number' },
+          btn0: { type: 'number' },
+          btn1: { type: 'number' },
+          btn2: { type: 'number' },
+          btn3: { type: 'number' },
+          gamepad: { type: 'checkbox' },
+          debug: { type: 'checkbox' },
+        }
+        fields.forEach(({ type }, name) => {
+          if (type == 'checkbox') {
+            getEl(name).checked = config['name']
+          } else {
+            getEl(name).value = config['name']
+          }
+        })
+      }
+      const events = []
+      const appendEvent = (data) => {
+        events.push(data)
+        if (events.length > 20) events.shift()
+        getEl("data").innerText = events.join('\n')
+      }
+      // actions
+      const calibrationStart = async () => {
         const res = apiCall('/analog/calibrate/start')
       }
-    }
+      const configSave = async (e) => {
+        e.preventDefault()
+        const formData = new FormData(e.target)
+        const params = Object.fromEntries(formData)
+        console.log(params)
+        try {
+          const res = await fetch('/config', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams(params)
+          })
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+          }
+          console.log('Config saved successfully')
+        } catch (e) {
+          console.error('Failed to save config:', e)
+        }
+      }
+      const onSSEMessage = (e) => {
+        appendEvent(e.data)
+        try {
+          const data = JSON.parse(e.data)
+          if (data['channels']) updateChannels(data)
+          if (data['calibration']) updateCalibration(data)
+          if (data['config']) updateConfig(data)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+      // setup
+      window.addEventListener('load', () => {
+        getEl("calibrationStart").addEventListener('click', calibrationStart)
+        getEl('configForm').addEventListener('submit', configSave)
+        const sse = new EventSource('/events')
+        sse.addEventListener('message', onSSEMessage)
+      })
+    })()
   </script>
 </body>
 

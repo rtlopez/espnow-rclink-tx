@@ -10,6 +10,7 @@ enum TxEvent : uint8_t {
   EV_CALIBRATION_START,
   EV_CALIBRATION_UPDATE,
   EV_CALIBRATION_DONE,
+  EV_SAVE,
 };
 
 using TxEventCallback = std::function<void()>;

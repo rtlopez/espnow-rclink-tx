@@ -48,3 +48,10 @@ int Gamepad::begin() {
 #endif
   return 0;
 }
+
+void Gamepad::end() {
+#ifdef USE_GAMEPAD
+  //TODO: _tx.unsubscribe()
+  Joystick.end();
+#endif
+}
