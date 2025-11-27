@@ -8,6 +8,8 @@ public:
   int begin();
   void end();
 
+  void onChannelUpdate();
+
 private:
   Tx &_tx;
 };

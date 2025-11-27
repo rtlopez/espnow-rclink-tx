@@ -41,7 +41,9 @@ public:
   void setChannel(size_t channel, int value);
   int getChannel(size_t channel) const;
 
-  template <typename Rcv> void update(const Rcv &rcv) {
+  template <typename Rcv>
+  void update(const Rcv &rcv) {
+    // TODO: handle to fast updates
     for (size_t channel = 0; channel < 8; ++channel) {
       setChannel(channel, rcv.get(channel));
     }

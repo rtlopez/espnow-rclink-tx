@@ -32,26 +32,29 @@ int Gamepad::begin() {
     Joystick.setThrottleRange(AXIS_RANGE_MIN, AXIS_RANGE_MAX);
     Joystick.setRudderRange(AXIS_RANGE_MIN, AXIS_RANGE_MAX);
     Joystick.begin(false);
-    _tx.subscribe(EV_CHANNEL_UPDATE, [this]() {
-      Joystick.setXAxis(gamepadScale(_tx.getChannel(0)));
-      Joystick.setYAxis(gamepadScale(_tx.getChannel(1)));
-      Joystick.setThrottle(gamepadScale(_tx.getChannel(2)));
-      Joystick.setRudder(gamepadScale(_tx.getChannel(3)));
-      Joystick.setZAxis(gamepadScale(_tx.getChannel(4)));
-      // channel 6, 7, 8 as buttons
-      for (size_t i = 0; i < 3; i++) {
-        Joystick.setButton(i, _tx.getChannel(i + 5) >= BUTTON_THRESHOLD);
-      }
-      Joystick.sendState();
-    });
+    _tx.subscribe(EV_CHANNEL_UPDATE, &Gamepad::onChannelUpdate, this);
   }
 #endif
   return 0;
 }
 
+void Gamepad::onChannelUpdate()
+{
+  Joystick.setXAxis(gamepadScale(_tx.getChannel(0)));
+  Joystick.setYAxis(gamepadScale(_tx.getChannel(1)));
+  Joystick.setThrottle(gamepadScale(_tx.getChannel(2)));
+  Joystick.setRudder(gamepadScale(_tx.getChannel(3)));
+  Joystick.setZAxis(gamepadScale(_tx.getChannel(4)));
+  // channel 6, 7, 8 as buttons
+  for (size_t i = 0; i < 3; i++) {
+    Joystick.setButton(i, _tx.getChannel(i + 5) >= BUTTON_THRESHOLD);
+  }
+  Joystick.sendState();
+}
+
 void Gamepad::end() {
 #ifdef USE_GAMEPAD
-  //TODO: _tx.unsubscribe()
+  _tx.unsubscribe(this);
   Joystick.end();
 #endif
 }

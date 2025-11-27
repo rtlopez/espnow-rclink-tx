@@ -11,6 +11,8 @@ public:
   void end();
   int update();
 
+  void onChannelUpdate();
+
 private:
   Tx &_tx;
   EspNowRcLink::Receiver _rxEspNow;
