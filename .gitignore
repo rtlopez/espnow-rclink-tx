@@ -1,2 +1,5 @@
 .pio
 .vscode
+.cache
+compile_commands.json
+platformio_local.ini
