@@ -40,6 +40,7 @@ int Gamepad::begin() {
 
 void Gamepad::onChannelUpdate()
 {
+#ifdef USE_GAMEPAD
   Joystick.setXAxis(gamepadScale(_tx.getChannel(0)));
   Joystick.setYAxis(gamepadScale(_tx.getChannel(1)));
   Joystick.setThrottle(gamepadScale(_tx.getChannel(2)));
@@ -50,6 +51,7 @@ void Gamepad::onChannelUpdate()
     Joystick.setButton(i, _tx.getChannel(i + 5) >= BUTTON_THRESHOLD);
   }
   Joystick.sendState();
+#endif
 }
 
 void Gamepad::end() {
