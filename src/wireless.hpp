@@ -7,6 +7,7 @@
 #include <ESPmDNS.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <ArduinoJson.h>
 
 class Wireless {
 public:
@@ -22,6 +23,7 @@ private:
   int _updateConfig();
   int _updateChannels();
   int _updateCalibration();
+  void _sendJson(const JsonDocument& json);
 
   Tx &_tx;
   const char *_ssid;

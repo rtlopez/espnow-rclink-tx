@@ -93,6 +93,11 @@
     <label for="debug">Serial debug:</label>
     <input type="checkbox" id="debug" name="debug" />
 
+    <label for="wifiSsid">WiFi SSID:</label>
+    <input type="text" maxlength="32" value="" id="wifiSsid" name="wifiSsid" />
+    <label for="wifiPass">WiFi Pass:</label>
+    <input type="password" maxlength="32" value="" id="wifiPass" name="wifiPass" />
+
     <button id="save" type="submit">Save</button>
   </form>
   <hr />
@@ -196,29 +201,31 @@
         })
         getEl("calibrationStart").setAttribute('disabled', data.active)
       }
+      const CONFIG_FIELDS = {
+        rxType: { type: 'select' },
+        txType: { type: 'select' },
+        rxPin: { type: 'number' },
+        txPin: { type: 'number' },
+        adc0: { type: 'number' },
+        adc1: { type: 'number' },
+        adc2: { type: 'number' },
+        adc3: { type: 'number' },
+        btn0: { type: 'number' },
+        btn1: { type: 'number' },
+        btn2: { type: 'number' },
+        btn3: { type: 'number' },
+        gamepad: { type: 'checkbox' },
+        debug: { type: 'checkbox' },
+        wifiSsid: { type: 'text' },
+        wifiPass: { type: 'text' },
+      }
       const updateConfig = (data) => {
         const { config } = data
-        const fields = {
-          rxType: { type: 'number' },
-          txType: { type: 'number' },
-          rxPin: { type: 'number' },
-          txPin: { type: 'number' },
-          adc0: { type: 'number' },
-          adc1: { type: 'number' },
-          adc2: { type: 'number' },
-          adc3: { type: 'number' },
-          btn0: { type: 'number' },
-          btn1: { type: 'number' },
-          btn2: { type: 'number' },
-          btn3: { type: 'number' },
-          gamepad: { type: 'checkbox' },
-          debug: { type: 'checkbox' },
-        }
-        fields.forEach(({ type }, name) => {
+        Object.entries(CONFIG_FIELDS).forEach(([name, { type }]) => {
           if (type == 'checkbox') {
-            getEl(name).checked = config['name']
+            getEl(name).checked = !!config[name]
           } else {
-            getEl(name).value = config['name']
+            getEl(name).value =  '' + config[name]
           }
         })
       }
@@ -236,7 +243,9 @@
         e.preventDefault()
         const formData = new FormData(e.target)
         const params = Object.fromEntries(formData)
-        console.log(params)
+        Object.entries(CONFIG_FIELDS).forEach(([name, { type }]) => {
+          params[name] = formData.get(name) ?? ''
+        })
         try {
           const res = await fetch('/config', {
             method: 'POST',
@@ -248,7 +257,7 @@
           if (!res.ok) {
             throw new Error(`HTTP ${res.status}: ${res.statusText}`)
           }
-          console.log('Config saved successfully')
+          console.log('Config saved')
         } catch (e) {
           console.error('Failed to save config:', e)
         }

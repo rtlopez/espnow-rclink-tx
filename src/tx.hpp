@@ -31,6 +31,8 @@ struct TxConfig {
   int8_t buttonPins[4] = {-1, -1, -1, -1};
   int8_t gamepad = 0;
   int8_t debug = 0;
+  char wifiSsid[33] = {0};
+  char wifiPass[33] = {0};
 };
 
 class Tx : public EventEmiter {
