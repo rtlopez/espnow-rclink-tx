@@ -9,7 +9,7 @@
 #define PPM_PIN 13
 
 // uncomment to print some details to console
-//#define PRINT_INFO
+#define PRINT_INFO
 
 EspNowRcLink::Transmitter tx;
 #ifdef PPM_PIN
@@ -21,7 +21,7 @@ void setup()
   Serial.begin(115200);
 
 #ifdef PPM_PIN
-  ppm.begin(PPM_PIN, FALLING);
+  ppm.begin(PPM_PIN, RISING);
 #endif
 
   tx.begin(true);

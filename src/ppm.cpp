@@ -26,7 +26,7 @@ int PPM::begin(int pin, int mode)
   _channel = 0;
   _last_tick = micros();
 
-  pinMode(_pin, INPUT);
+  pinMode(_pin, INPUT_PULLUP);
   attachInterruptArg(_pin, &PPM::handle_isr, this, mode);
 
   return 1;
